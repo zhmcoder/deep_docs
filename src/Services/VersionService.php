@@ -21,16 +21,27 @@ class VersionService
         return new self();
     }
 
-    public function versions($project_id = 1)
+    public function versions($project_id)
     {
         return Versions::query()->where('project_id', $project_id)
             ->pluck('title');
     }
 
-    public function defaultVersion($project_id = 1)
+    public function defaultVersion($project_id)
     {
-        return Projects::query()->where('id', $project_id)
+        $version_id = Projects::query()->where('id', $project_id)
             ->value('default_version');
+
+        if ($version_id) {
+            $version = Versions::query()->where('id', $version_id)
+                ->value('title');
+        } else {
+            $version = Versions::query()->where('id', $version_id)
+                ->where('project_id', $project_id)
+                ->orderBy('id', 'desc')
+                ->value('title');
+        }
+        return $version;
     }
 
 

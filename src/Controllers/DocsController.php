@@ -3,6 +3,9 @@
 namespace Andruby\DeepDocs\Controllers;
 
 use Andruby\DeepDocs\DocsRepository;
+use Andruby\DeepDocs\Models\Catalog;
+use Andruby\DeepDocs\Models\Documents;
+use Andruby\DeepDocs\Models\Projects;
 use Andruby\DeepDocs\Models\Versions;
 use Andruby\DeepDocs\Services\VersionService;
 use App\Http\Controllers\Controller;
@@ -31,52 +34,20 @@ class DocsController extends Controller
                 $this->middleware(config('larecipe.settings.middleware'));
             }
         }
-        $this->versions = VersionService::instance()->versions();
     }
 
-    /**
-     * Redirect the index page of docs to the default version.
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-//    public function index()
-//    {
-//        return redirect()->route(
-//            'larecipe.show',
-//            [
-//                'version' => config('larecipe.versions.default'),
-//                'page' => config('larecipe.docs.landing')
-//            ]
-//        );
-//    }
-
-    /**
-     * Show a documentation page.
-     *
-     * @param $version
-     * @param null $page
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function show($version, $page = null)
+    public function index($router_name = null)
     {
-        $version = 1;
-        $page = config('larecipe.docs.landing');
-        $documentation = $this->documentationRepository->get($version, $page, [], 1);
+        $project = $this->get_project($router_name);
 
-//        if (Gate::has('viewLarecipe')) {
-//            $this->authorize('viewLarecipe', $documentation);
-//        }
-//
-//        if ($this->documentationRepository->isNotPublishedVersion($version)) {
-//            return redirect()->route(
-//                'larecipe.show',
-//                [
-//                    'version' => config('larecipe.versions.default'),
-//                    'page' => config('larecipe.docs.landing')
-//                ]
-//            );
-//        }
+        $version = VersionService::instance()->defaultVersion($project['id']);
+        $documentation = Documents::query()->where('project_id', $project['id'])
+            ->orderBy('sort')->first();
+
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+
+        $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
+        $this->versions = VersionService::instance()->versions($project['id']);
 
         return response()->view('larecipe::docs', [
             'title' => $documentation->title,
@@ -85,62 +56,38 @@ class DocsController extends Controller
             'currentVersion' => $version,
             'currentSection' => $documentation->currentSection,
             'canonical' => $documentation->canonical,
-            'versions' => $this->versions
+            'versions' => $this->versions,
+            'project' => $project
         ], $documentation->statusCode);
     }
 
-    public function index($version = null)
+    private function get_index($project_id, $router_name, $version = null)
     {
-        $version = empty($version) ? VersionService::instance()->defaultVersion() : $version;
-        $page = config('larecipe.docs.landing');
-        $documentation = $this->documentationRepository->get($version, $page, [], 1);
+        $catalog_list = Catalog::query()
+            ->where('project_id', $project_id)->get();
+        $index = "";
+        foreach ($catalog_list as $catalog) {
+            $index .= "- ## " . $catalog['title'] . "\n";
+            $article_list = Documents::query()->where('catalog_id', $catalog['id'])->get();
+            foreach ($article_list as $article) {
+                $index .= "   - [" . $article['title'] . "](/" . $router_name . "/" . $version . "/" . $article['id'] . ".html)\n";
+            }
+        }
 
-//        if (Gate::has('viewLarecipe')) {
-//            $this->authorize('viewLarecipe', $documentation);
-//        }
-//
-//        if ($this->documentationRepository->isNotPublishedVersion($version)) {
-//            return redirect()->route(
-//                'larecipe.show',
-//                [
-//                    'version' => config('larecipe.versions.default'),
-//                    'page' => config('larecipe.docs.landing')
-//                ]
-//            );
-//        }
-
-        return response()->view('larecipe::docs', [
-            'title' => $documentation->title,
-            'index' => $documentation->index,
-            'content' => $documentation->content,
-            'currentVersion' => $version,
-            'currentSection' => $documentation->currentSection,
-            'canonical' => $documentation->canonical,
-            'versions' => $this->versions
-        ], $documentation->statusCode);
+        return $index;
     }
 
-    public function detail($version, $doc_id = null)
+    public function detail($router_name, $version, $doc_id)
     {
-        //versions
-        //project info
+        $project = $this->get_project($router_name);
 
-        $page = config('larecipe.docs.landing');
-        $documentation = $this->documentationRepository->get($version, $page, [], $doc_id);
+        $documentation = Documents::query()->where('id', $doc_id)
+            ->orderBy('sort')->first();
 
-//        if (Gate::has('viewLarecipe')) {
-//            $this->authorize('viewLarecipe', $documentation);
-//        }
-//
-//        if ($this->documentationRepository->isNotPublishedVersion($version)) {
-//            return redirect()->route(
-//                'larecipe.show',
-//                [
-//                    'version' => config('larecipe.versions.default'),
-//                    'page' => config('larecipe.docs.landing')
-//                ]
-//            );
-//        }
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+        $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
+        $this->versions = VersionService::instance()->versions($project['id']);
+
 
         return response()->view('larecipe::docs', [
             'title' => $documentation->title,
@@ -150,41 +97,48 @@ class DocsController extends Controller
 
             'currentSection' => $documentation->currentSection,
             'canonical' => $documentation->canonical,
-            'versions' => $this->versions
+            'versions' => $this->versions,
+            'project'=>$project
         ], $documentation->statusCode);
     }
 
-    public function version($version)
+    public function version($router_name, $version)
     {
-        //versions
-        //project info
-        $doc_id=1;
-        $page = config('larecipe.docs.landing');
-        $documentation = $this->documentationRepository->get($version, $page, [], $doc_id);
+        $project = $this->get_project($router_name);
 
-//        if (Gate::has('viewLarecipe')) {
-//            $this->authorize('viewLarecipe', $documentation);
-//        }
-//
-//        if ($this->documentationRepository->isNotPublishedVersion($version)) {
-//            return redirect()->route(
-//                'larecipe.show',
-//                [
-//                    'version' => config('larecipe.versions.default'),
-//                    'page' => config('larecipe.docs.landing')
-//                ]
-//            );
-//        }
+        $documentation = Documents::query()->where('project_id', $project['id'])
+            ->orderBy('sort')->first();
+
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+        $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
+        $this->versions = VersionService::instance()->versions($project['id']);
+
 
         return response()->view('larecipe::docs', [
             'title' => $documentation->title,
             'index' => $documentation->index,
             'content' => $documentation->content,
             'currentVersion' => $version,
-
             'currentSection' => $documentation->currentSection,
             'canonical' => $documentation->canonical,
-            'versions' => $this->versions
+            'versions' => $this->versions,
+            'project' => $project
         ], $documentation->statusCode);
+    }
+
+    private function get_project($router_name)
+    {
+        if (!empty($router_name)) {
+            $project = Projects::query()
+                ->where('router_name', $router_name)
+                ->first()->toArray();
+        }
+
+        if (empty($project)) {
+            $project = Projects::query()->orderBy('id')
+                ->where('default_show', 1)
+                ->limit(1)->first()->toArray();
+        }
+        return $project;
     }
 }

@@ -65,25 +65,38 @@ class DocsRepository extends DocumentationRepository
             $index .= "- ## " . $catalog['title'] . "\n";
             $article_list = Documents::query()->where('catalog_id', $catalog['id'])->get();
             foreach ($article_list as $article) {
-                $index .= "   - [" . $article['title'] . "](/".$version."/" . $article['id'] . ".html)\n";
+                $index .= "   - [" . $article['title'] . "](/" . $version . "/" . $article['id'] . ".html)\n";
             }
         }
         $parsedContent = $this->parse($index);
 
         return $this->replaceLinks($version, $parsedContent);
 
+    }
 
-//        return $this->cache->remember(function() use($version) {
-//            $path = base_path(config('larecipe.docs.path').'/'.$version.'/index.md');
-//
-//            if ($this->files->exists($path)) {
-//                $parsedContent = $this->parse($this->files->get($path));
-//
-//                return $this->replaceLinks($version, $parsedContent);
-//            }
-//
-//            return null;
-//        }, 'larecipe.docs.'.$version.'.index');
+    public function genIndex($indexContent, $version = null)
+    {
+        $parsedContent = $this->parse($indexContent);
+
+        $this->index = $this->replaceLinks($version, $parsedContent);
+        return $this->index;
+    }
+
+    public function genContent($content, $version)
+    {
+
+        $parsedContent = $this->parse($content);
+        $parsedContent = $this->replaceLinks($version, $parsedContent);
+
+        $this->content = $this->renderBlade($parsedContent, []);
+        if (is_null($this->content)) {
+            return $this->prepareNotFound();
+        }
+
+        $this->prepareTitle()
+            ->prepareCanonical();
+
+        return $this;
     }
 
 
