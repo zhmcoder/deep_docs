@@ -52,8 +52,8 @@ class DocsServiceProvider extends ServiceProvider
 //        $this->loadViewsFrom(__DIR__ . '/../resources/views/mero', 'Mero');
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/route.php');
-        Admin::script('deep-admin', __DIR__.'/../dist/js/extend.js');
-        Admin::style('deep-admin', __DIR__.'/../dist/css/extend.css');
+//        Admin::script('deep-admin', __DIR__.'/../dist/js/extend.js');
+//        Admin::style('deep-admin', __DIR__.'/../dist/css/extend.css');
 
         if (file_exists($routes = app_path('Api') . '/routes.php')) {
             $this->loadRoutesFrom($routes);
@@ -86,8 +86,9 @@ class DocsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([__DIR__ . '/../config' => config_path()], 'deep-docs-config');
             $this->publishes([__DIR__ . '/../resources/lang' => resource_path('lang')], 'deep-docs-lang');
-            $this->publishes([__DIR__ . '/../database/migrations' => database_path('migrations')], 'deep-docs-migrations');
-            $this->publishes([__DIR__ . '/../dist' => public_path('vendor/deep-docs')], 'deep-docs-assets');
+            $this->publishes([__DIR__ . '/../resources/views' => resource_path('views')], 'deep-docs-views');
+//            $this->publishes([__DIR__ . '/../database/migrations' => database_path('migrations')], 'deep-docs-migrations');
+//            $this->publishes([__DIR__ . '/../dist' => public_path('vendor/deep-docs')], 'deep-docs-assets');
         }
     }
 
