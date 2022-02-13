@@ -41,10 +41,17 @@ class DocsController extends Controller
         $project = $this->get_project($router_name);
 
         $version = VersionService::instance()->defaultVersion($project['id']);
+
+        $version_id = Versions::query()->where('title', $version)
+            ->where('project_id', $project['id'])
+            ->value('id');
+
         $documentation = Documents::query()->where('project_id', $project['id'])
+            ->where('versions', 'like', '%"' . $version_id . '"%')
             ->orderBy('sort')->first();
 
-        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version, $version_id));
 
         $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
         $this->versions = VersionService::instance()->versions($project['id']);
@@ -61,14 +68,17 @@ class DocsController extends Controller
         ], $documentation->statusCode);
     }
 
-    private function get_index($project_id, $router_name, $version = null)
+    private function get_index($project_id, $router_name, $version = null, $version_id = null)
     {
         $catalog_list = Catalog::query()
+            ->where('versions', 'like', '%"' . $version_id . '"%')
             ->where('project_id', $project_id)->get();
         $index = "";
         foreach ($catalog_list as $catalog) {
             $index .= "- ## " . $catalog['title'] . "\n";
-            $article_list = Documents::query()->where('catalog_id', $catalog['id'])->get();
+            $article_list = Documents::query()
+                ->where('versions', 'like', '%"' . $version_id . '"%')
+                ->where('catalog_id', $catalog['id'])->get();
             foreach ($article_list as $article) {
                 $index .= "   - [" . $article['title'] . "](/" . $router_name . "/" . $version . "/" . $article['id'] . ".html)\n";
             }
@@ -81,10 +91,16 @@ class DocsController extends Controller
     {
         $project = $this->get_project($router_name);
 
+        $version_id = Versions::query()->where('title', $version)
+            ->where('project_id', $project['id'])
+            ->value('id');
+
         $documentation = Documents::query()->where('id', $doc_id)
+            ->where('versions', 'like', '%"' . $version_id . '"%')
             ->orderBy('sort')->first();
 
-        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version, $version_id));
         $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
         $this->versions = VersionService::instance()->versions($project['id']);
 
@@ -98,7 +114,7 @@ class DocsController extends Controller
             'currentSection' => $documentation->currentSection,
             'canonical' => $documentation->canonical,
             'versions' => $this->versions,
-            'project'=>$project
+            'project' => $project
         ], $documentation->statusCode);
     }
 
@@ -106,10 +122,14 @@ class DocsController extends Controller
     {
         $project = $this->get_project($router_name);
 
+        $version_id = Versions::query()->where('title', $version)
+            ->where('project_id', $project['id'])
+            ->value('id');
         $documentation = Documents::query()->where('project_id', $project['id'])
+            ->where('versions', 'like', '%"' . $version_id . '"%')
             ->orderBy('sort')->first();
 
-        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version));
+        $this->documentationRepository->genIndex($this->get_index($project['id'], $project['router_name'], $version, $version_id));
         $documentation = $this->documentationRepository->genContent($documentation['content'], $version);
         $this->versions = VersionService::instance()->versions($project['id']);
 
