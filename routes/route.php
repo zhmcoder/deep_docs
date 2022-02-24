@@ -29,7 +29,9 @@ Route::group([
     'middleware' => config('deep_docs.route.middleware')
 ], function (Router $router) {
 
-    $router->get('/{router_name?}', 'DocsController@index')->name('docs.index');
+    $router->get('/{router_name?}', 'DocsController@index')
+        ->where(['router_name'=>'^(?!'.config('admin.route.prefix').'$)[a-z0-9]+$'])
+        ->name('docs.index');
     $router->get('/{router_name}/{version}', 'DocsController@version')->name('docs.version');
     $router->get('/{router_name}/{version}/{doc_id}.html', 'DocsController@detail')->name('docs.detail');
 
