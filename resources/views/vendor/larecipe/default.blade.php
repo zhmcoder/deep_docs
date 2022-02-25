@@ -3,7 +3,7 @@
     <head>
         <!-- META Tags -->
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>{{ isset($title) ? $title . ' | ' : null }}{{ empty($project['name'])?config('app.name'):$project['name'] }}</title>
+        <title>{{ isset($title) ? $title . ' | ' : null }}{{ empty($project['name'])?config('app.name'):$project['name'] }}{{ empty(config('deep_docs.site_title_suffix'))?'':(' |'.config('deep_docs.site_title_suffix')) }}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -52,16 +52,45 @@
             @endif
         @endforeach
 
+        <style>
+            .main {
+                height: 90%;
+                display: inline
+            }
+            .footer {
+                margin-top: -50px;
+                height: 50px;
+                z-index: 999;
+                /*background-color: #eee;*/
+                color: #717e81;
+                text-align:center;
+                margin-left: 4rem;
+            }
+            .main .content{
+                margin-bottom: 50px;
+                min-height: 93%
+            }
+            body,html{
+                height: 89%;
+            }
+        </style>
+
     </head>
     <body>
-        <div id="app" v-cloak>
-            @include('larecipe::partials.nav')
+        <div class="main">
+            <div id="app" v-cloak class="content">
+                @include('larecipe::partials.nav')
 
-            @include('larecipe::plugins.search')
+                @include('larecipe::plugins.search')
 
-            @yield('content')
+                @yield('content')
 
-            <larecipe-back-to-top></larecipe-back-to-top>
+                <larecipe-back-to-top></larecipe-back-to-top>
+
+            </div>
+            <div class="footer">
+                Copyright © {{ config('deep_docs.copyright') }}. All Rights Reserved {{ config('deep_docs.beian_number') }}
+            </div>
         </div>
 
 
