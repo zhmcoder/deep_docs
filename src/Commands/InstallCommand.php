@@ -42,9 +42,7 @@ class InstallCommand extends Command
 
         $this->call('vendor:publish', ['--provider' => DocsServiceProvider::class,
             '--tag' => ['deep-docs-views'], '--force' => 'true']);
-
-        $this->line('Dumping the autoloaded files and reloading all new files.. 🍪');
-
+        
         $this->info('DeepDocs successfully installed! Enjoy 😍');
         $this->info('Visit http://host/dadamin in your browser 👻');
     }
