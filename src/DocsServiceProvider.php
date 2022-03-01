@@ -2,6 +2,7 @@
 
 namespace Andruby\DeepDocs;
 
+use Andruby\DeepDocs\Commands\InstallCommand;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use SmallRuralDog\Admin\Admin;
@@ -9,13 +10,9 @@ use SmallRuralDog\Admin\Admin;
 class DocsServiceProvider extends ServiceProvider
 {
 
-//    protected $commands = [
-//
-//        Console\InstallCommand::class,
-//        Console\FormItemCommand::class,
-//        Console\ExtendCommand::class,
-//
-//    ];
+    protected $commands = [
+        InstallCommand::class
+    ];
 //
 //    protected $routeMiddleware = [
 //        'admin.auth' => Middleware\Authenticate::class,
@@ -75,9 +72,9 @@ class DocsServiceProvider extends ServiceProvider
 
         $this->registerRouteMiddleware();
 
-//        $this->commands($this->commands);
-
-
+        if ($this->app->runningInConsole()) {
+            $this->commands($this->commands);
+        }
     }
 
 
@@ -110,6 +107,5 @@ class DocsServiceProvider extends ServiceProvider
 //            app('router')->middlewareGroup($key, $middleware);
 //        }
     }
-
 
 }
