@@ -17,9 +17,6 @@ Route::group([
     //目录管理
     $router->resource('catalog', 'CatalogController');
 
-//    //产品操作
-//    $router->post("goods/addGoodsAttr", "GoodsController@addGoodsAttr")->name("addGoodsAttr");
-//    $router->post("goods/addGoodsAttrValue", "GoodsController@addGoodsAttrValue")->name("addGoodsAttrValue");
 });
 
 Route::group([
@@ -30,7 +27,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/{router_name?}', 'DocsController@index')
-        ->where(['router_name'=>'^(?!'.config('admin.route.prefix').'$)[a-z0-9]+$'])
+        ->where(['router_name'=>'^(?!'.config('admin.route.prefix').'$)[\s\S]+$'])
         ->name('docs.index');
     $router->get('/{router_name}/{version}', 'DocsController@version')->name('docs.version');
     $router->get('/{router_name}/{version}/{doc_id}.html', 'DocsController@detail')->name('docs.detail');
