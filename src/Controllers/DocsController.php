@@ -80,7 +80,8 @@ class DocsController extends Controller
                 ->where('versions', 'like', '%"' . $version_id . '"%')
                 ->where('catalog_id', $catalog['id'])->get();
             foreach ($article_list as $article) {
-                $index .= "   - [" . $article['title'] . "](/" . $router_name . "/" . $version . "/" . $article['id'] . ".html)\n";
+                $router_url = route('docs.detail', ['router_name' => $router_name, 'version' => $version, 'doc_id' => $article['id']]);
+                $index .= "   - [" . $article['title'] . "](" . $router_url . ")\n";
             }
         }
 
