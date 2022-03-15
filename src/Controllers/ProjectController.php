@@ -7,11 +7,11 @@ use Andruby\DeepAdmin\Models\Content;
 use Andruby\DeepAdmin\Models\EntityField;
 use Andruby\DeepDocs\Models\Versions;
 use PharIo\Version\Version;
-use SmallRuralDog\Admin\Components\Attrs\SelectOption;
-use SmallRuralDog\Admin\Components\Form\Input;
-use SmallRuralDog\Admin\Components\Form\Select;
-use SmallRuralDog\Admin\Form;
-use SmallRuralDog\Admin\Grid;
+use Andruby\DeepAdmin\Components\Attrs\SelectOption;
+use Andruby\DeepAdmin\Components\Form\Input;
+use Andruby\DeepAdmin\Components\Form\Select;
+use Andruby\DeepAdmin\Form;
+use Andruby\DeepAdmin\Grid;
 
 
 class ProjectController extends ContentController

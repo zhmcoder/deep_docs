@@ -3,8 +3,8 @@
 namespace Andruby\DeepDocs\Controllers;
 
 use Andruby\DeepAdmin\Controllers\ContentController;
-use SmallRuralDog\Admin\Form;
-use SmallRuralDog\Admin\Grid;
+use Andruby\DeepAdmin\Form;
+use Andruby\DeepAdmin\Grid;
 
 
 class CatalogController extends ContentController

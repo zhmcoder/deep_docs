@@ -5,7 +5,7 @@ namespace Andruby\DeepDocs\Commands;
 use Andruby\DeepDocs\DocsServiceProvider;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use SmallRuralDog\Admin\AdminServiceProvider;
+use Andruby\DeepAdmin\AdminServiceProvider;
 use Symfony\Component\Process\Process;
 use BinaryTorch\LaRecipe\LaRecipeServiceProvider;
 
@@ -42,7 +42,7 @@ class InstallCommand extends Command
 
         $this->call('vendor:publish', ['--provider' => DocsServiceProvider::class,
             '--tag' => ['deep-docs-views'], '--force' => 'true']);
-        
+
         $this->info('DeepDocs successfully installed! Enjoy 😍');
         $this->info('Visit http://host/dadamin in your browser 👻');
     }
