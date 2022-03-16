@@ -89,7 +89,7 @@
 
             </div>
             <div class="footer">
-                Copyright © {{ config('deep_docs.copyright') }}. All Rights Reserved {{ config('deep_docs.beian_number') }}
+                Copyright © {{ config('deep_docs.copyright') }}. All Rights Reserved <a href="https://beian.miit.gov.cn/" target="_blank">{{ config('deep_docs.beian_number') }}</a>
             </div>
         </div>
 
