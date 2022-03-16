@@ -5,7 +5,7 @@ namespace Andruby\DeepDocs;
 use Andruby\DeepDocs\Commands\InstallCommand;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
-use SmallRuralDog\Admin\Admin;
+use Andruby\DeepAdmin\Admin;
 
 class DocsServiceProvider extends ServiceProvider
 {
