@@ -4,10 +4,10 @@ use Illuminate\Routing\Router;
 
 
 Route::group([
-    'domain' => config('admin.route.domain'),
-    'prefix' => config('admin.route.api_prefix'),
+    'domain' => config('deep_admin.route.domain'),
+    'prefix' => config('deep_admin.route.api_prefix'),
     'namespace' => '\Andruby\DeepDocs\Controllers',
-    'middleware' => config('admin.route.middleware')
+    'middleware' => config('deep_admin.route.middleware')
 ], function (Router $router) {
 
     //版本管理

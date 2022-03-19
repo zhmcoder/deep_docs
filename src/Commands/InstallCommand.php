@@ -34,7 +34,6 @@ class InstallCommand extends Command
     {
         $this->line('Publishing assets and congigurations.. 🍪');
         $this->call('vendor:publish', ['--provider' => AdminServiceProvider::class]);
-        $this->call('vendor:publish', ['--provider' => \Andruby\DeepAdmin\AdminServiceProvider::class]);
 
         $this->call('vendor:publish', ['--provider' => LaRecipeServiceProvider::class, '--tag' => ['larecipe_assets', 'larecipe_config', 'larecipe_views']]);
 
